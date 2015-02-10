@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+# encoding: utf-8
+import argparse
+import os
+import os.path
+
+import config
+
+from FileDown import FileDown
+from caoliu import CaoLiu
+
+def main():
+    description = "set some options for hardoav"
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("-D", "--dir", dest="output_dir",
+            default=config.OUTPUT_DIR, help="set directory for downloaded videos.")
+    parser.add_argument("-W", "--worker_count", dest="worker_count", type=int,
+            default=config.WORKER_COUNT,
+            help="set worker count for simultaneously download a video")
+    parser.add_argument("-S", "--site", dest="site", default=config.SITE,
+            help="set site for scanning video urls")
+    parser.add_argument("-T", "--topic_num", dest="topic_num", default=config.TOPIC_NUM,
+            type=int, help="set scanning topic num")
+
+    args = parser.parse_args()
+    output_dir = args.output_dir
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
+    site = args.site
+    if not site.endswith("/"):
+        site = site + '/'
+    worker_count = args.worker_count
+    if worker_count > 16 or worker_count < 1:
+        worker_count = config.WORKER_COUNT
+    topic_num = args.topic_num
+    if topic_num < 1:
+        topic_num = config.TOPIC_NUM
+    caoliu = CaoLiu(site, topic_num)
+    for download_info in caoliu.gen_download_infos():
+        filename = download_info["title"] + '.' + download_info["file"].rsplit(".", 1)[1]
+        fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
+        fd.start()
+        fd.clean()
+
+
+
+if __name__ == "__main__":
+    main()
+
+

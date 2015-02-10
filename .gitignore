@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.swp
+*.json
+*.log
+*.txt
+*.db
+*.exe
+input/
+downloads/
