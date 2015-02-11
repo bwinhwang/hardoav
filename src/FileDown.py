@@ -25,20 +25,17 @@ class FileDown(object):
         self.range[-1]=self.size+1
         self.name=filename
         self.url=url
-        self.worker_count = worker_count
         self.output_dir = output_dir
         self.info = info
         self.partsfiles={}
-        self.pool=ThreadPool(worker_count)
 
-    def start(self):
+    def start(self, pool):
         filename = os.path.join(self.output_dir, self.name)
         if os.path.isfile(filename):
             return
         print ("starting download...")
-        self.pool.map(self.rangeDown,range(len(self.range)-1))
-        self.pool.close()
-        self.pool.join()
+        pool.map(self.rangeDown,range(len(self.range)-1))
+        pool.join()
         print ("merge files...")
         self.merge()
 

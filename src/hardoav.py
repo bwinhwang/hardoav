@@ -36,6 +36,8 @@ def main():
     topic_num = args.topic_num
     if topic_num < 1:
         topic_num = config.TOPIC_NUM
+
+    pool=ThreadPool(worker_count)
     caoliu = CaoLiu(site, topic_num)
     for download_info in caoliu.gen_download_infos():
         filename = download_info["file"].rsplit("/", 1)[1]
