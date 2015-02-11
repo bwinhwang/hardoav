@@ -10,7 +10,7 @@ import config
 
 from FileDown import FileDown
 from caoliu import CaoLiu
-
+__VERSION__ = "0.0.1"
 def main():
     description = "set some options for hardoav"
     parser = argparse.ArgumentParser(description=description)
@@ -23,6 +23,9 @@ def main():
             help="set site for scanning video urls")
     parser.add_argument("-T", "--topic_num", dest="topic_num", default=config.TOPIC_NUM,
             type=int, help="set scanning topic num")
+    version = "%(prog)s " +  __VERSION__
+    parser.add_argument("-V", "--version", action='version',
+            version=version, help="show version number")
 
     args = parser.parse_args()
     output_dir = args.output_dir
