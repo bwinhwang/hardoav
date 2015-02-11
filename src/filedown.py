@@ -44,6 +44,7 @@ class FileDown(object):
         prefix, suffix = self.name.rsplit('.', 1)
         suffix = '.' + suffix
         write_fd,tempname=tempfile.mkstemp(suffix=suffix, prefix=prefix, dir=self.output_dir)
+        print(tempname)
         self.partsfiles[index]=tempname
         downed=0
         total=self.range[index+1]-self.range[index]

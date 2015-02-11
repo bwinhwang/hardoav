@@ -8,7 +8,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 import config
 
-from FileDown import FileDown
+from filedown import FileDown
 from caoliu import CaoLiu
 __VERSION__ = "0.0.1"
 def main():
@@ -47,12 +47,12 @@ def main():
         file_url = download_info["file"]
         title = download_info["title"]
         filename = file_url.rsplit("/", 1)[1]
+        filename = title + '.' + file_url.rsplit('.', 1)[1]
         try:
             print(file_url)
             print(title)
             fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
             fd.start(pool)
-            fd.clean()
         except Exception as e:
             traceback.print_exc()
 

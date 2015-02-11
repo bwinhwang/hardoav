@@ -1,3 +1,8 @@
+hardoav
+=======
+A Simple tool for you download oav at caoliu
+
+
 
 Usage
 =====
@@ -18,6 +23,18 @@ optional arguments:
                         set scanning topic num
   -V, --version         show version number
 ```
+
+Requirement
+===========
+* requests
+
+
+TODO
+====
+* support socks5, http proxy
+* maybe change to C++
+* maybe use requests to download
+
 
 
 
