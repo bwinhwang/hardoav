@@ -34,7 +34,6 @@ class FileDown(object):
             return
         print ("starting download...")
         pool.map(self.rangeDown,range(len(self.range)-1))
-        pool.join()
         print ("merge files...")
         self.merge()
         print ("cleaning...")
