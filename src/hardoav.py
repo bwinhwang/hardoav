@@ -41,8 +41,12 @@ def main():
     pool=ThreadPool(worker_count)
     caoliu = CaoLiu(site, topic_num)
     for download_info in caoliu.gen_download_infos():
-        filename = download_info["file"].rsplit("/", 1)[1]
+        file_url = download_info["file"]
+        title = download_info["title"]
+        filename = file_url.rsplit("/", 1)[1]
         try:
+            print(file_url)
+            print(title)
             fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
             fd.start(pool)
             fd.clean()

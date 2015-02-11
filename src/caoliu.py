@@ -28,7 +28,6 @@ def find_download_info(session, url):
         if "config" in script_text:
             tmp = script_text.split("file:", 1)[1].strip()
             file_url = tmp.split(",", 1)[0].strip("\"")
-            print file_url
             c = dict(file=file_url)
             c["Referer"] = src
             return c
