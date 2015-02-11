@@ -3,6 +3,7 @@
 import argparse
 import os
 import os.path
+import traceback
 
 import config
 
@@ -37,10 +38,13 @@ def main():
         topic_num = config.TOPIC_NUM
     caoliu = CaoLiu(site, topic_num)
     for download_info in caoliu.gen_download_infos():
-        filename = download_info["title"] + '.' + download_info["file"].rsplit(".", 1)[1]
-        fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
-        fd.start()
-        fd.clean()
+        filename = download_info["file"].rsplit("/", 1)[1]
+        try:
+            fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
+	    fd.start()
+	    fd.clean()
+        except Exception as e:
+            traceback.print_exc()
 
 
 

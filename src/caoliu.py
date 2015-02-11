@@ -61,7 +61,6 @@ class CaoLiu(object):
                 try:
                     href = self.site + a.get("href")
                     title = unicode(a.string).replace(" ", "")
-                    print ("href: %s\ntitle: %s" %(href, title))
                     topic_urls.append((href, title))
                     scanned_topic += 1
                 except Exception as e:
