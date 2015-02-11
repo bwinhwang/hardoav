@@ -4,6 +4,7 @@ import argparse
 import os
 import os.path
 import traceback
+from multiprocessing.dummy import Pool as ThreadPool
 
 import config
 
@@ -43,8 +44,8 @@ def main():
         filename = download_info["file"].rsplit("/", 1)[1]
         try:
             fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
-	    fd.start()
-	    fd.clean()
+            fd.start(pool)
+            fd.clean()
         except Exception as e:
             traceback.print_exc()
 
