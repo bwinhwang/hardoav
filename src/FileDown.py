@@ -61,8 +61,6 @@ class FileDown(object):
                 break
             os.write(write_fd,chunk_data)
             downed+=len(chunk_data)
-            #print("-"*int(float(downed)/total*50))
-            #print ("worker %d already downloaded %.2f%%" %(index,float(downed)*100/total))
     def merge(self):
 
         filename = os.path.join(self.output_dir, self.name)
