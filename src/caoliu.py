@@ -29,7 +29,7 @@ def find_download_info(session, url):
             print(script_text)
             try:
                 tmp = script_text.split("file: \'", 1)[1].strip()
-                file_url = tmp.split(",", 1)[0].strip("\"")
+                file_url = tmp.split(",", 1)[0].strip("\'")
                 if not file_url.startswith("http://"):
                     print(file_url)
                     continue
