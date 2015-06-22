@@ -65,13 +65,15 @@ class FileDown(object):
     def merge(self):
 
         filename = os.path.join(self.output_dir, self.name)
-        writef=open(filename, "wb")
-        for i in range(len(self.range)-1):
-            readf=open(self.partsfiles[i],"rb")
-            writef.write(readf.read())
-            readf.close()
-        writef.close()
-        print("successfully downloaded")
+        with open(filename, "wb") as writef:
+            for i in range(len(self.range)-1):
+                with open(self.partsfiles[i],"rb") as readf:
+                    while True:
+                        data = readf.read(CHUNK_SIZE)
+                        if not data:
+                            break
+                        writef.write(data)
+            print("successfully downloaded")
 
     def clean(self):
         for i in range(len(self.range)-1):
@@ -79,4 +81,5 @@ class FileDown(object):
 
 
 
-
+def chunk_read(rf):
+    yield readf.read(CHUNK_SIZE)
