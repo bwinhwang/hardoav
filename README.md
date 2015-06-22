@@ -36,6 +36,19 @@ TODO
 * maybe use requests to download
 
 
+BUG
+===
+```
+Traceback (most recent call last):
+  File "hardoav.py", line 55, in main
+    fd.start(pool)
+  File "/root/hardoav/src/filedown.py", line 38, in start
+    self.merge()
+  File "/root/hardoav/src/filedown.py", line 71, in merge
+    writef.write(readf.read())
+MemoryError
+```
+
 
 
 LICENSE
