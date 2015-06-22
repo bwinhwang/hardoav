@@ -46,11 +46,10 @@ def main():
     for download_info in caoliu.gen_download_infos():
         file_url = download_info["file"]
         title = download_info["title"]
-        print(file_url)
-        filename = title + '.' + file_url.rsplit('.', 1)[1]
         try:
             print(file_url)
             print(title)
+            filename = title + '.' + file_url.rsplit('.', 1)[1]
             fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
             fd.start(pool)
         except Exception as e:
