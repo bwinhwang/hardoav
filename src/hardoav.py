@@ -46,7 +46,7 @@ def main():
     for download_info in caoliu.gen_download_infos():
         file_url = download_info["file"]
         title = download_info["title"]
-        filename = file_url.rsplit("/", 1)[1]
+        print(file_url)
         filename = title + '.' + file_url.rsplit('.', 1)[1]
         try:
             print(file_url)
