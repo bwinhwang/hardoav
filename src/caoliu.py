@@ -26,10 +26,11 @@ def find_download_info(session, url):
     for script in scripts:
         script_text = unicode(script.string).strip()
         if "config" in script_text:
-            print(script)
-            tmp = script_text.split("file:", 1)[1].strip()
+            print(script_text)
+            tmp = script_text.split("file: \"", 1)[1].strip()
             file_url = tmp.split(",", 1)[0].strip("\"")
             if not file_url.startswith("http://"):
+                print(file_url)
                 continue
             c = dict(file=file_url)
             c["Referer"] = src
