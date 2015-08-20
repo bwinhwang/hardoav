@@ -12,8 +12,8 @@ import bs4
 AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.76 Safari/537.36'
 
 def find_download_info(session, url):
-	site1 = "http://up2stream.com"
-	site2 = "http://videowood.tv/embed"
+    site1 = "http://up2stream.com"
+    site2 = "http://videowood.tv/embed"
     r = session.get(url)
     r.encoding = "gb2312"
     soup = bs4.BeautifulSoup(r.text, "lxml")
@@ -34,7 +34,7 @@ def find_download_info(session, url):
     	return None
 
 def videowood(soup):
-	scripts = soup.find_all("script")
+    scripts = soup.find_all("script")
     for script in scripts:
         script_text = unicode(script.string).strip()
         if "config" in script_text:
@@ -43,10 +43,10 @@ def videowood(soup):
             return file_url
 
 def up2stream(soup):
-	video = soup.find("video", id="container")
-	source = video.find("source")
-	file_url = source.get("src")
-	return file_url
+    video = soup.find("video", id="container")
+    source = video.find("source")
+    file_url = source.get("src")
+    return file_url
 
 
 class CaoLiu(object):
