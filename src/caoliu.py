@@ -12,27 +12,41 @@ import bs4
 AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.76 Safari/537.36'
 
 def find_download_info(session, url):
+	site1 = "http://up2stream.com"
+	site2 = "http://videowood.tv/embed"
     r = session.get(url)
     r.encoding = "gb2312"
     soup = bs4.BeautifulSoup(r.text, "lxml")
     embed = soup.find("embed")
     src = embed.get("src")
-    if not src.startswith("http://videowood.tv/embed"):
+    if not src.startswith((site1, site2)):
         return None
     headers = dict(Referer=url)
     r = session.get(src, headers=headers)
     soup = bs4.BeautifulSoup(r.text, "lxml")
-    scripts = soup.find_all("script")
+    if src.startswith(site2):
+    	file_url = videowood(soup)
+    else src.startswith(site1):
+    	file_url = up2stream(soup)
+    if file_url:
+    	return dict(file=file_url, Referer=src)
+    else:
+    	return None
+
+def videowood(soup):
+	scripts = soup.find_all("script")
     for script in scripts:
         script_text = unicode(script.string).strip()
         if "config" in script_text:
             tmp = script_text.split("file:", 1)[1].strip()
             file_url = tmp.split(",", 1)[0].strip("\"")
-            c = dict(file=file_url)
-            c["Referer"] = src
-            return c
-    return None
+            return file_url
 
+def up2stream(soup):
+	video = soup.find("video", id="container")
+	source = video.find("source")
+	file_url = source.get("src")
+	return file_url
 
 
 class CaoLiu(object):
