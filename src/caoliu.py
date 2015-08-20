@@ -26,7 +26,7 @@ def find_download_info(session, url):
     soup = bs4.BeautifulSoup(r.text, "lxml")
     if src.startswith(site2):
     	file_url = videowood(soup)
-    else src.startswith(site1):
+    else
     	file_url = up2stream(soup)
     if file_url:
     	return dict(file=file_url, Referer=src)
