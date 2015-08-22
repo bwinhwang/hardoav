@@ -6,11 +6,8 @@
 #include <boost/program_options.hpp>
 #include <gumbo.h>
 #include "config.hh"
-
-void on_age(int age)
-{
-  std::cout << "On age: " << age << '\n';
-}
+#include "hardoav.hh"
+#include "caoliu.hh"
 
 int main(int argc, const char *argv[]) {
     using namespace std;
@@ -33,6 +30,14 @@ int main(int argc, const char *argv[]) {
             cout << desc << endl;
             exit(0);
         }
+        string site(vm["site"].as<string>());
+        string dir(vm["dir"].as<string>());
+        int topic_num(vm["topic_num"].as<int>());
+        cout << "current config: " << endl;
+        cout << "caoliu site: " << site << endl;
+        cout << "downloads dir: " << dir << endl;
+        cout << "scanning topic number: " << topic_num << endl;
+        hardoav::Config config(site, dir, topic_num);
         if(vm.count("url")) {
             // individual url to download
             string url(vm["url"].as<string>());
@@ -40,13 +45,7 @@ int main(int argc, const char *argv[]) {
         }
         else {
             // scan
-            string site(vm["site"].as<string>());
-            string dir(vm["dir"].as<string>());
-            int topic_num(vm["topic_num"].as<int>());
-            cout << "current config: " << endl;
-            cout << "caoliu site: " << site << endl;
-            cout << "downloads dir: " << dir << endl;
-            cout << "scanning topic number: " << topic_num << endl;
+
             // TODO
         }
     }
@@ -58,5 +57,4 @@ int main(int argc, const char *argv[]) {
     // Do stuff with output->root
     gumbo_destroy_output(&kGumboDefaultOptions, output);
     return 0;
-
 }

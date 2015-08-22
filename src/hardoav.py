@@ -49,7 +49,7 @@ def main():
         try:
             print(file_url)
             print(title)
-            filename = title + '.' + file_url.rsplit('.', 1)[1]
+            filename = title + '.' + file_url.rsplit('?', 1)[0].rsplit('.', 1)[1]
             fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
             fd.start(pool)
         except Exception as e:
