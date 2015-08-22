@@ -8,3 +8,8 @@ __pycache__
 *.exe
 input/
 downloads/
+build/
+CMakeLists.txt.user
+COPYRIGHT
+doc/
+runhelp.sh
