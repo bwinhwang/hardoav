@@ -2,6 +2,8 @@
 #define HARDOAV_CAOLIU_HH
 #include <string>
 #include <curl/curl.h>
+#include <gumbo.h>
+
 /**
  * @brief The Caoliu class
  */
@@ -39,12 +41,21 @@ private:
 
 class ResponseHandler {
 public:
-    void to_gumbo_parser();
-    size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp);
+    static size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp);
+    static size_t write_header(void *buffer, size_t size, size_t nmemb, void *userp);
+    ResponseHandler& append(const std::string &chunk){
+        content.append(chunk);
+        return *this;
+    }
     const std::string get_content() {return content;}
+    const std::string get_from_charset() {return from_charset;}
+    const std::string get_utf8_content();
+    GumboOutput *to_gumbo_parser();
+    void destory_gumbo_output(GumboOutput * output);
 private:
     std::string content;
-    std::string charset;
+    std::string utf8_content;
+    std::string from_charset = "gbk";
 };
 }
 
