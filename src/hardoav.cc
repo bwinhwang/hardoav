@@ -48,7 +48,7 @@ int main(int argc, const char *argv[]) {
             string url(vm["url"].as<string>());
             cout << "fetching url: " << url << endl;
             hardoav::ParseTopic parseTopic(config, url);
-            parseTopic.getEmbedSrc(easyhandle);
+            cout << parseTopic.getEmbedSrc(easyhandle) << endl;
         }
         else {
             // scan

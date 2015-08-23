@@ -36,6 +36,16 @@ private:
   std::string m_topic_url;
   std::string m_referer;
 };
+
+class ResponseHandler {
+public:
+    void to_gumbo_parser();
+    size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp);
+    const std::string get_content() {return content;}
+private:
+    std::string content;
+    std::string charset;
+};
 }
 
 #endif
