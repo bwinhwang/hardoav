@@ -17,7 +17,7 @@ def find_download_info(session, url):
     r = session.get(url)
     r.encoding = "gb2312"
     soup = bs4.BeautifulSoup(r.text, "lxml")
-    title = unicode(soup.find("title").string)
+    title = unicode(soup.find("title").string).rsplit(']', 1)[0] + ']'
     embed = soup.find("embed")
     src = embed.get("src")
     if not src.startswith((site1, site2)):
