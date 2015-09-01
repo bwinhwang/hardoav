@@ -21,6 +21,8 @@ def main():
             help="set worker count for simultaneously download a video")
     parser.add_argument("-S", "--site", dest="site", default=config.SITE,
             help="set site for scanning video urls")
+    parser.add_argument("-U", "--url", dest="url", default=None,
+            help="set individual url to download")
     parser.add_argument("-T", "--topic_num", dest="topic_num", default=config.TOPIC_NUM,
             type=int, help="set scanning topic num")
     version = "%(prog)s " +  __VERSION__
@@ -34,6 +36,7 @@ def main():
     site = args.site
     if not site.endswith("/"):
         site = site + '/'
+    url = args.url
     worker_count = args.worker_count
     if worker_count > 16 or worker_count < 1:
         worker_count = config.WORKER_COUNT
@@ -42,7 +45,7 @@ def main():
         topic_num = config.TOPIC_NUM
 
     pool=ThreadPool(worker_count)
-    caoliu = CaoLiu(site, topic_num)
+    caoliu = CaoLiu(site, topic_num, url=url)
     for download_info in caoliu.gen_download_infos():
         file_url = download_info["file"]
         title = download_info["title"]

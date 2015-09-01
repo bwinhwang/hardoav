@@ -17,6 +17,7 @@ def find_download_info(session, url):
     r = session.get(url)
     r.encoding = "gb2312"
     soup = bs4.BeautifulSoup(r.text, "lxml")
+    title = unicode(soup.find("title").string)
     embed = soup.find("embed")
     src = embed.get("src")
     if not src.startswith((site1, site2)):
@@ -29,7 +30,7 @@ def find_download_info(session, url):
     else:
     	file_url = up2stream(soup)
     if file_url:
-    	return dict(file=file_url, Referer=src)
+    	return dict(file=file_url, Referer=src, title=title)
     else:
     	return None
 
@@ -50,9 +51,10 @@ def up2stream(soup):
 
 
 class CaoLiu(object):
-    def __init__(self, site, topic_num):
+    def __init__(self, site, topic_num, url=None):
         self.site = site
         self.topic_num = topic_num
+        self.url = url # individual topic url
         self.session = requests.Session()
         self.session.headers["User-Agent"] = AGENT
 
@@ -74,31 +76,32 @@ class CaoLiu(object):
                 try:
                     href = self.site + a.get("href")
                     title = unicode(a.string).replace(" ", "")
-                    topic_urls.append((href, title))
+                    topic_urls.append(href)
                     scanned_topic += 1
                 except Exception as e:
                     traceback.print_exc()
             print scanned_topic
-            print type(self.topic_num)
             if scanned_topic >= self.topic_num:
                 break
             page += 1
         return topic_urls
 
     def gen_download_infos(self):
-        topic_urls = self._get_topic_url()
-        for i, topic in enumerate(topic_urls, start=1):
+        topic_urls = []
+        if not self.url:
+            # scan
+            topic_urls.extend(self._get_topic_url())
+        else:
+            # individual url download
+            topic_urls.append(self.url)
+        for i, url in enumerate(topic_urls, start=1):
             if i >= self.topic_num:
                 break
-            url = topic[0]
-            title = topic[1]
+            download_info = None
             try:
                 download_info = find_download_info(self.session, url)
             except Exception as e:
                 traceback.print_exc()
-                download_info = None
-
             if download_info:
-                download_info["title"] = title
                 yield download_info
 
