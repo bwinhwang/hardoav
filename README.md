@@ -34,6 +34,7 @@ Requirement
 
 TODO
 ====
+* support range download, continue download when partial downloaded, not skip it
 * ~~support socks5, http proxy~~ use proxychain
 * ~~maybe change to C++~~ too complex, not worth to port
 * ~~maybe use requests to download~~ already implemented
