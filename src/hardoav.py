@@ -44,8 +44,7 @@ def main():
     if topic_num < 1:
         topic_num = config.TOPIC_NUM
 
-    pool=ThreadPool(worker_count)
-    caoliu = CaoLiu(site, topic_num, url=url)
+    caoliu = CaoLiu(site, topic_num, output_dir, url=url)
     for download_info in caoliu.gen_download_infos():
         file_url = download_info["file"]
         title = download_info["title"]
@@ -53,9 +52,8 @@ def main():
             print(file_url)
             print(title)
             filename = title + '.' + file_url.rsplit('?', 1)[0].rsplit('.', 1)[1]
-            fd = FileDown(filename, download_info["file"], worker_count, output_dir, download_info)
-            fd.start(pool)
-        except Exception as e:
+            caoliu.download(download_info, filename)
+        except Exception as _:
             traceback.print_exc()
 
 
