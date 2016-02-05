@@ -4,13 +4,13 @@ import argparse
 import os
 import os.path
 import traceback
-from multiprocessing.dummy import Pool as ThreadPool
+# from multiprocessing.dummy import Pool as ThreadPool
 
 import config
 
-from filedown import FileDown
+# from filedown import FileDown
 from caoliu import CaoLiu
-__VERSION__ = "0.0.1"
+__VERSION__ = "0.0.2"
 def main():
     description = "set some options for hardoav"
     parser = argparse.ArgumentParser(description=description)
@@ -45,17 +45,7 @@ def main():
         topic_num = config.TOPIC_NUM
 
     caoliu = CaoLiu(site, topic_num, output_dir, url=url)
-    for download_info in caoliu.gen_download_infos():
-        file_url = download_info["file"]
-        title = download_info["title"]
-        try:
-            print(file_url)
-            print(title)
-            filename = title + '.' + file_url.rsplit('?', 1)[0].rsplit('.', 1)[1]
-            caoliu.download(download_info, filename)
-        except Exception as _:
-            traceback.print_exc()
-
+    caoliu.start_scan()
 
 
 if __name__ == "__main__":

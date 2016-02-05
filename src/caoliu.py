@@ -5,13 +5,18 @@ import json
 import traceback
 import re
 import os.path
+import sys
 
 
 
 import requests
 import bs4
+import execjs
+import jsbeautifier
 
 AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36'
+CHUNK_SITE = 1024 * 32
+NEXT_LINE = 2**20 / CHUNK_SITE
 
 def find_download_info(session, url):
     site1 = "http://up2stream.com"
@@ -28,34 +33,33 @@ def find_download_info(session, url):
     onclick = onclick.rsplit("'", 2)
     src = onclick[-2]
     print("iframe src: %s" % src)
-    if src.startswith(site2):
-        # TODO
-        return None
     headers = dict(Referer=url)
     headers["User-Agent"] = AGENT
     r = session.get(src, headers=headers)
-    soup = bs4.BeautifulSoup(r.text, "lxml")
+    content = r.content
+    ret = re.search(r"eval\(.*\)", content)
+    if not ret:
+        return None
+    js = ret.group()
+    # soup = bs4.BeautifulSoup(r.text, "lxml")
     file_url = None
     if src.startswith(site1):
-    	file_url = up2stream(soup)
+    	file_url = up2stream(js)
+    elif src.startswith(site2):
+        file_url = pptcc(js)
+
     if file_url:
     	return dict(file=file_url, Referer=src, title=title)
     else:
     	return None
 
-def pptcc(soup):
-    scripts = soup.find_all("script")
-    for script in scripts:
-        script_text = unicode(script.string).strip()
-        if "config" in script_text:
-            tmp = script_text.split("file:", 1)[1].strip()
-            file_url = tmp.split(",", 1)[0].strip("\"")
-            return file_url
+def pptcc(js):
+    ret = execjs.eval(js)
+    return ret["file"]
 
-def up2stream(soup):
-    video = soup.find("video", id="container")
-    source = video.find("source")
-    file_url = source.get("src")
+def up2stream(js):
+    res = jsbeautifier.beautify(js)
+    file_url = res.rsplit('"', 2)[-2]
     return file_url
 
 
@@ -95,7 +99,7 @@ class CaoLiu(object):
             page += 1
             yield topic_urls
 
-    def gen_download_infos(self):
+    def start_scan(self):
         if self.url:
             # individual url download
             download_info = None
@@ -104,15 +108,23 @@ class CaoLiu(object):
             except Exception as _:
                 traceback.print_exc()
             if download_info:
-                yield download_info
+                file_url = download_info["file"]
+                title = download_info["title"]
+                try:
+                    print(file_url)
+                    print(title)
+                    filename = title + '.' + file_url.rsplit('?', 1)[0].rsplit('.', 1)[1]
+                    self.download(download_info, filename)
+                except Exception as _:
+                    traceback.print_exc()
         else:
             # scan
-            count = 0
+            count = 1
             for topic_urls in self._get_topic_url():
-                if count >= self.topic_num:
+                if count > self.topic_num:
                     break
                 for url in topic_urls:
-                    if count >= self.topic_num:
+                    if count > self.topic_num:
                         break
                     download_info = None
                     try:
@@ -120,17 +132,37 @@ class CaoLiu(object):
                     except Exception as _:
                         traceback.print_exc()
                     if download_info:
-                        count += 1
-                        yield download_info
+                        file_url = download_info["file"]
+                        title = download_info["title"]
+                        try:
+                            print("count is: %d" % count)
+                            print(file_url)
+                            print(title)
+                            filename = title + '.' + file_url.rsplit('?', 1)[0].rsplit('.', 1)[1]
+                            ret = self.download(download_info, filename)
+                            if ret:
+                                count += 1
+                        except Exception as _:
+                            traceback.print_exc()
 
     def download(self, download_info, filename):
         headers = dict(Referer=download_info["Referer"])
         headers["User-Agent"] = AGENT
-        self.session.get("http://adv.up2stream.com/adsprp.php", headers=headers)
+        # self.session.get("http://adv.up2stream.com/adsprp.php", headers=headers)
         r = self.session.get(download_info["file"], headers=headers, stream=True)
         filename = os.path.join(self.output_dir, filename)
+        if os.path.isfile(filename):
+            print("already downloaded, skip it")
+            return False
+
+        print(r.headers)
+        print("start downloading...")
         with open(filename, "wb") as f:
-            for chunk in r.iter_content(chunk_size=4096):
+            for i, chunk in enumerate(r.iter_content(chunk_size=CHUNK_SITE), start=1):
                 if chunk: # filter out keep-alive new chunks
                     f.write(chunk)
+                sys.stdout.write('\r'+ "#"*(i % NEXT_LINE) + str(i / NEXT_LINE) + "MB")
+                sys.stdout.flush()
+            sys.stdout.write('\n')
         print("saved to " + filename)
+        return True
