@@ -9,17 +9,15 @@ get_ipython().set_next_input(u'res = jsbeautifier.beautify');get_ipython().magic
 res = jsbeautifier.beautify(js)
 res
 get_ipython().magic(u'ls ')
-get_ipython().magic(u'cd virtualenvs/hardoav/')
-res = jsbeautifier.beautify_file("temp.html")
+res = jsbeautifier.beautify_file("./iframe.html")
 print(res)
 res = jsbeautifier.beautify(js)
 res
 js
-content = open("temp.html").read()
+content = open("./iframe.html").read()
 content
 import re
-re.compile(r"eval\(*\)")
-p = _18
+p = re.compile(r"eval\(*\)")
 p.search(js)
 p.search(content)
 p = re.compile(r"eval")
@@ -56,8 +54,7 @@ execjs.available_runtimes
 execjs.available_runtimes()
 execjs.available_runtimes()
 p = re.compile(r"eval\(.*\)")
-p.search(content)
-ret = _50
+ret = p.search(content)
 ret.start
 ret.start()
 ret.end()
@@ -72,7 +69,6 @@ get_ipython().magic(u'pinfo re.search')
 re.search(r"eval\(.*\)", js)
 re.search(r"eval\(.*\)", ajs)
 re.search(r"eval\(.*\)", content)
-get_ipython().magic(u'edit temp.html')
 import jsbeautifier
 res = jsbeautifier.beautify(ajs)
 res = jsbeautifier.beautify(js)
@@ -81,9 +77,6 @@ res.split('"')
 res.rsplit('"', 2)
 res.rsplit('"', 2)[-1]
 res.rsplit('"', 2)[-2]
-execjs.eval(ajs)
-ret
-ret = _75
-ret
+ret = execjs.eval(ajs)
 ret.keys()
 ret["file"]

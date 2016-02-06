@@ -12,7 +12,6 @@ import sys
 import requests
 import bs4
 import execjs
-import jsbeautifier
 
 AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36'
 CHUNK_SITE = 1024 * 32
@@ -22,6 +21,7 @@ def find_download_info(session, url):
     site1 = "http://up2stream.com"
     site2 = "http://ppt.cc"
     r = session.get(url)
+    print(r.request.headers)
     r.encoding = "gb2312"
     soup = bs4.BeautifulSoup(r.text, "lxml")
     title = unicode(soup.find("title").string).rsplit(']', 1)[0] + ']'
@@ -47,6 +47,7 @@ def find_download_info(session, url):
     	file_url = up2stream(js)
     elif src.startswith(site2):
         file_url = pptcc(js)
+        # pass
 
     if file_url:
     	return dict(file=file_url, Referer=src, title=title)
@@ -57,9 +58,29 @@ def pptcc(js):
     ret = execjs.eval(js)
     return ret["file"]
 
+FAKE_JQUERY='''
+function $(id) {
+    function attr(src, url) {return url;}
+    var o = {};
+    o.attr = attr;
+    return o;
+}
+
+'''
+
 def up2stream(js):
-    res = jsbeautifier.beautify(js)
-    file_url = res.rsplit('"', 2)[-2]
+    file_url = None
+    ctx = execjs.compile(FAKE_JQUERY)
+    try:
+        file_url = ctx.eval(js)
+    except execjs.ProgramError as e:
+        # ReferenceError: DUNUfdcXVfY is not defined
+        print(e)
+        e = str(e)
+        flag = e.split()[1]
+        flag = "var %s=true;" % flag
+        ctx = execjs.compile(FAKE_JQUERY + flag)
+        file_url = ctx.eval(js)
     return file_url
 
 
