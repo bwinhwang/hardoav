@@ -15,13 +15,12 @@ import execjs
 
 AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36'
 CHUNK_SITE = 1024 * 32
-NEXT_LINE = 2**20 / CHUNK_SITE
 
 def find_download_info(session, url):
     site1 = "http://up2stream.com"
     site2 = "http://ppt.cc"
     r = session.get(url)
-    print(r.request.headers)
+    # print(r.request.headers)
     r.encoding = "gb2312"
     soup = bs4.BeautifulSoup(r.text, "lxml")
     title = unicode(soup.find("title").string).rsplit(']', 1)[0] + ']'
@@ -81,6 +80,8 @@ def up2stream(js):
         flag = "var %s=true;" % flag
         ctx = execjs.compile(FAKE_JQUERY + flag)
         file_url = ctx.eval(js)
+    if not file_url or "36abc039c05dff6d1a82e0c7988c467d" in file_url:
+        return None
     return file_url
 
 
@@ -111,6 +112,8 @@ class CaoLiu(object):
                 try:
                     href = self.site + a.get("href")
                     title = unicode(a.string).replace(" ", "")
+                    print(scanned_topic)
+                    print(title)
                     topic_urls.append(href)
                     # print(u"title: %s\nurl: %s" % (title, href))
                     scanned_topic += 1
@@ -169,20 +172,34 @@ class CaoLiu(object):
     def download(self, download_info, filename):
         headers = dict(Referer=download_info["Referer"])
         headers["User-Agent"] = AGENT
+
+        filename = os.path.join(self.output_dir, filename)
+        local_size = 0
+        if os.path.isfile(filename):
+            local_size = os.path.getsize(filename)
+            headers["Range"] = "bytes=%d-" % local_size
+            print("resume download at bytes: %d" % local_size)
+
         # self.session.get("http://adv.up2stream.com/adsprp.php", headers=headers)
         r = self.session.get(download_info["file"], headers=headers, stream=True)
-        filename = os.path.join(self.output_dir, filename)
-        if os.path.isfile(filename):
-            print("already downloaded, skip it")
-            return False
-
+        # print("status_code", r.status_code)
         print(r.headers)
+        content_length = int(r.headers["Content-Length"])
+        content_length += local_size
+        if local_size == content_length or r.status_code == 416:
+            print("already downloaded, skip it.")
+            return None
         print("start downloading...")
-        with open(filename, "wb") as f:
-            for i, chunk in enumerate(r.iter_content(chunk_size=CHUNK_SITE), start=1):
+        content_length_mb = content_length / 2**20
+        with open(filename, "ab") as f:
+            for chunk in r.iter_content(chunk_size=CHUNK_SITE):
                 if chunk: # filter out keep-alive new chunks
                     f.write(chunk)
-                sys.stdout.write('\r'+ "#"*(i % NEXT_LINE) + str(i / NEXT_LINE) + "MB")
+                local_size += len(chunk)
+                process_bar = "#"*int(local_size * 50 / content_length)
+                process_bar += str(local_size / 2**20) + "MB/"
+                process_bar += str(content_length_mb) + "MB"
+                sys.stdout.write('\r'+ process_bar)
                 sys.stdout.flush()
             sys.stdout.write('\n')
         print("saved to " + filename)
