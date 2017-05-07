@@ -28,19 +28,23 @@ optional arguments:
 Requirement
 ===========
 * requests
-* PyExecJS
-* jsbeautifier
+* ~~PyExecJS~~
+* ~~jsbeautifier~~
 
 
 TODO
 ====
-* support range download, continue download when partial downloaded, not skip it
+* Smart to find file url
+* ~~support range download, continue download when partial downloaded, not skip it~~ already implemented
 * ~~support socks5, http proxy~~ use proxychain
 * ~~maybe change to C++~~ too complex, not worth to port
 * ~~maybe use requests to download~~ already implemented
 
 Changelog
 ========
+Version 0.0.3:
+* use regular expression to find file url
+
 Version 0.0.2:
 * support major two sites in CaoLiu OAV
 * use Requests to download, not use filedown.py
