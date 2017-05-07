@@ -10,7 +10,7 @@ import config
 
 # from filedown import FileDown
 from caoliu import CaoLiu
-__VERSION__ = "0.0.2"
+__VERSION__ = "0.0.3"
 def main():
     description = "set some options for hardoav"
     parser = argparse.ArgumentParser(description=description)

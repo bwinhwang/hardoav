@@ -11,14 +11,13 @@ import sys
 
 import requests
 import bs4
-import execjs
 
 AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36'
 CHUNK_SITE = 1024 * 32
 
 def find_download_info(session, url):
-    site1 = "http://up2stream.com"
-    site2 = "http://ppt.cc"
+    # site1 = "http://up2stream.com"
+    # site2 = "http://ppt.cc"
     r = session.get(url)
     # print(r.request.headers)
     r.encoding = "gb2312"
@@ -36,17 +35,27 @@ def find_download_info(session, url):
     headers["User-Agent"] = AGENT
     r = session.get(src, headers=headers)
     content = r.content
-    ret = re.search(r"eval\(.*\)", content)
-    if not ret:
-        return None
-    js = ret.group()
+    PATTERN = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-&\--_*+@.]|[!*\(\)]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    file_urls = re.findall(PATTERN, content)
+    print(file_urls)
+    # print(content)
     # soup = bs4.BeautifulSoup(r.text, "lxml")
     file_url = None
-    if src.startswith(site1):
-    	file_url = up2stream(js)
-    elif src.startswith(site2):
-        file_url = pptcc(js)
-        # pass
+    # ret = re.search(r"eval\(.*\)", content)
+    # js = ret.group()
+    # file_url = up2stream(js)
+    # file_url = pptcc(js)
+    # now use regular expression to find file url.
+    try:
+        for fu in file_urls:
+            # fu = fu.rstrip('/')
+            no_query_fu = fu.split('?', 1)[0]
+            if no_query_fu.rsplit('.')[-1] in ('mp4', 'mp4/'):
+                file_url = fu
+                break
+    except Exception as e:
+        print(e)
+        print("Can't handle url", src)
 
     if file_url:
     	return dict(file=file_url, Referer=src, title=title)
@@ -54,6 +63,7 @@ def find_download_info(session, url):
     	return None
 
 def pptcc(js):
+    import execjs
     ret = execjs.eval(js)
     return ret["file"]
 
@@ -68,6 +78,7 @@ function $(id) {
 '''
 
 def up2stream(js):
+    import execjs
     file_url = None
     ctx = execjs.compile(FAKE_JQUERY)
     try:
@@ -162,7 +173,7 @@ class CaoLiu(object):
                             print("count is: %d" % count)
                             print(file_url)
                             print(title)
-                            filename = title + '.' + file_url.rsplit('?', 1)[0].rsplit('.', 1)[1]
+                            filename = title + '.' + file_url.rstrip('/').rsplit('?', 1)[0].rsplit('.', 1)[1]
                             ret = self.download(download_info, filename)
                             if ret:
                                 count += 1
@@ -181,10 +192,17 @@ class CaoLiu(object):
             print("resume download at bytes: %d" % local_size)
 
         # self.session.get("http://adv.up2stream.com/adsprp.php", headers=headers)
-        r = self.session.get(download_info["file"], headers=headers, stream=True)
+        r = self.session.head(download_info["file"], headers=headers, allow_redirects=True)
         # print("status_code", r.status_code)
         print(r.headers)
-        content_length = int(r.headers["Content-Length"])
+        print(r.request.url)
+        print(r.url)
+        r = self.session.get(download_info["file"], headers=headers, stream=True)
+        try:
+            content_length = int(r.headers["Content-Length"])
+        except Exception as e:
+            r = self.session.get(download_info["file"], headers=headers)
+            content_length = int(r.headers["Content-Length"])
         content_length += local_size
         if local_size == content_length or r.status_code == 416:
             print("already downloaded, skip it.")
