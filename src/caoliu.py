@@ -123,8 +123,7 @@ class CaoLiu(object):
                 a = h3.find("a")
                 try:
                     href = self.site + a.get("href")
-                    title = unicode(a.string).replace(" ", "")
-                    print(scanned_topic)
+                    title = unicode(a.string).replace(" ", "").encode('utf-8')
                     print(title)
                     topic_urls.append(href)
                     # print(u"title: %s\nurl: %s" % (title, href))
