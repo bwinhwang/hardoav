@@ -129,7 +129,7 @@ class CaoLiu(object):
                     topic_urls.append(href)
                     # print(u"title: %s\nurl: %s" % (title, href))
                     scanned_topic += 1
-                    if scanned_topic >= self.topic_num
+                    if scanned_topic >= self.topic_num:
                         break
                 except Exception as _:
                     traceback.print_exc()
