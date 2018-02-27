@@ -97,21 +97,22 @@ def up2stream(js):
 
 
 class CaoLiu(object):
-    def __init__(self, site, topic_num, output_dir, url=None):
+    def __init__(self, site, topic_num, output_dir, url=None, type=1):
         self.site = site
         self.topic_num = topic_num
         self.url = url # individual topic url
+        self.type = type # 1 for Asian NoMosaic, 2 for Asian Mosaic
         self.output_dir = output_dir
         self.session = requests.Session()
         self.session.headers["User-Agent"] = AGENT
 
     def _get_topic_url(self):
-        thread_url = self.site + "thread0806.php?fid=22&search=&page={page}"
+        thread_url = self.site + "thread0806.php?fid=22&search=&type=${type}&page={page}"
         page = 1
         scanned_topic = 0
         while True:
             topic_urls = []
-            url = thread_url.format(page=page)
+            url = thread_url.format(type=type,page=page)
             print(url)
             r = self.session.get(url)
             r.encoding = "gb2312"
@@ -128,11 +129,15 @@ class CaoLiu(object):
                     topic_urls.append(href)
                     # print(u"title: %s\nurl: %s" % (title, href))
                     scanned_topic += 1
+                    if scanned_topic >= self.topic_num
+                        break
                 except Exception as _:
                     traceback.print_exc()
             print("scaned topic_num: %d" % scanned_topic)
+            if scanned_topic >= self.topic_num:
+                break
             page += 1
-            yield topic_urls
+        return topic_urls
 
     def start_scan(self):
         if self.url:
@@ -154,31 +159,8 @@ class CaoLiu(object):
                     traceback.print_exc()
         else:
             # scan
-            count = 1
             for topic_urls in self._get_topic_url():
-                if count > self.topic_num:
-                    break
-                for url in topic_urls:
-                    if count > self.topic_num:
-                        break
-                    download_info = None
-                    try:
-                        download_info = find_download_info(self.session, url)
-                    except Exception as _:
-                        traceback.print_exc()
-                    if download_info:
-                        file_url = download_info["file"]
-                        title = download_info["title"]
-                        try:
-                            print("count is: %d" % count)
-                            print(file_url)
-                            print(title)
-                            filename = title + '.' + file_url.rstrip('/').rsplit('?', 1)[0].rsplit('.', 1)[1]
-                            ret = self.download(download_info, filename)
-                            if ret:
-                                count += 1
-                        except Exception as _:
-                            traceback.print_exc()
+                pass
 
     def download(self, download_info, filename):
         headers = dict(Referer=download_info["Referer"])
