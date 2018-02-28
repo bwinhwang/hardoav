@@ -13,7 +13,7 @@ class DB:
     self.dbfile = dbfile
     conn = sqlite3.connect(self.dbfile)
     c = conn.cursor()
-    c.execute('CREATE TABLE video IF NOT EXISTS info (url TEXT NOT NULL UNIQUE PRIMARY KEY, \
+    c.execute('CREATE TABLE video IF NOT EXISTS (url TEXT NOT NULL UNIQUE PRIMARY KEY, \
     title TEXT, \
     file TEXT,\
     size INTEGER,\
