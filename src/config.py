@@ -5,3 +5,6 @@ TOPIC_NUM = 3*10
 OUTPUT_DIR = os.path.expanduser("~/hardoav_downloads")
 SITE = "http://t66y.com/"
 
+SQLITE_FILE= os.path.expanduser("~/t66y.db")
+SQLITE_TABLE="video"
+

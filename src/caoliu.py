@@ -97,7 +97,7 @@ def up2stream(js):
 
 
 class CaoLiu(object):
-    def __init__(self, site, topic_num, output_dir, url=None, type=1):
+    def __init__(self, site, topic_num, output_dir, db, url=None, type=1):
         self.site = site
         self.topic_num = topic_num
         self.url = url # individual topic url
@@ -105,6 +105,8 @@ class CaoLiu(object):
         self.output_dir = output_dir
         self.session = requests.Session()
         self.session.headers["User-Agent"] = AGENT
+        self.db = db
+
 
     def _get_topic_url(self):
         thread_url = self.site + "thread0806.php?fid=22&search=&type=${type}&page={page}"
@@ -124,8 +126,7 @@ class CaoLiu(object):
                 try:
                     href = self.site + a.get("href")
                     title = unicode(a.string).replace(" ", "").encode('utf-8')
-                    print(title)
-                    topic_urls.append(href)
+                    topic_urls.append(dict(url = href,title = title,size = 0, file='',length=0))
                     # print(u"title: %s\nurl: %s" % (title, href))
                     scanned_topic += 1
                     if scanned_topic >= self.topic_num:
@@ -158,8 +159,8 @@ class CaoLiu(object):
                     traceback.print_exc()
         else:
             # scan
-            for topic_urls in self._get_topic_url():
-                pass
+            for item in self._get_topic_url():
+                self.db.insert_video_item(item.url,item.title)
 
     def download(self, download_info, filename):
         headers = dict(Referer=download_info["Referer"])

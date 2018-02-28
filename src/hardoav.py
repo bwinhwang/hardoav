@@ -10,6 +10,7 @@ import config
 
 # from filedown import FileDown
 from caoliu import CaoLiu
+from db import DB
 __VERSION__ = "0.0.3"
 def main():
     description = "set some options for hardoav"
@@ -43,8 +44,8 @@ def main():
     topic_num = args.topic_num
     if topic_num < 1:
         topic_num = config.TOPIC_NUM
-
-    caoliu = CaoLiu(site, topic_num, output_dir, url=url)
+    db = DB()
+    caoliu = CaoLiu(site, topic_num, output_dir, url=url,db=db)
     caoliu.start_scan()
 
 
