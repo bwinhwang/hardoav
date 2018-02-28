@@ -18,7 +18,7 @@ class DB:
       title TEXT, \
       file TEXT,\
       size INTEGER,\
-      length INTEGER)')
+      length INTEGER)',config.SQLITE_TABLE)
       c.close()
       conn.commit()
       conn.close()
