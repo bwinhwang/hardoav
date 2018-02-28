@@ -32,14 +32,12 @@ class DB:
       if data is None:
         c.execute('INSERT INTO video values(?,?,?,?,?)',
                   (url,title,file,size,length,))
-        c.close()
-        conn.commit()
-        conn.close()
         print "Insert %s " % (title)
     except Exception as _:
       traceback.print_exc()
     finally:
       c.close()
+      conn.commit()
       conn.close()
 
   def insert_video_items(self,items):
