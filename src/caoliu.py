@@ -126,7 +126,7 @@ class CaoLiu(object):
                 try:
                     href = self.site + a.get("href")
                     title = unicode(a.string).replace(" ", "").encode('utf-8')
-                    topic_urls.append(dict(url = href,title = title,size = 0, file='',length=0))
+                    topic_urls.append(dict(url = href.encode('utf-8'),title = title,size = 0, file='',length=0))
                     # print(u"title: %s\nurl: %s" % (title, href))
                     scanned_topic += 1
                     if scanned_topic >= self.topic_num:
