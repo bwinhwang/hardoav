@@ -160,7 +160,7 @@ class CaoLiu(object):
         else:
             # scan
             for item in self._get_topic_url():
-                self.db.insert_video_item(item.url,item.title)
+                self.db.insert_video_item(item['url'],item['title'])
 
     def download(self, download_info, filename):
         headers = dict(Referer=download_info["Referer"])
