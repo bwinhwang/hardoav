@@ -29,8 +29,8 @@ class DB:
       c.execute('SELECT * FROM video WHERE url = ? ',(url,))
       data = c.fetchone()
       if data is None:
-        c.execute('INSERT INTO ? values(?,?,?,?,?)',
-                  (config.SQLITE_TABLE, url,title,file,size,length,))
+        c.execute('INSERT INTO video values(?,?,?,?,?)',
+                  (url,title,file,size,length,))
         c.close()
         conn.commit()
         conn.close()
