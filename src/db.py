@@ -11,17 +11,16 @@ class DB:
   def __init__(self,dbfile = config.SQLITE_FILE ):
 
     self.dbfile = dbfile
-    if not os.path.exists(dbfile):
-      conn = sqlite3.connect(self.dbfile)
-      c = conn.cursor()
-      c.execute('CREATE TABLE {tn} (url TEXT NOT NULL UNIQUE PRIMARY KEY, \
-      title TEXT, \
-      file TEXT,\
-      size INTEGER,\
-      length INTEGER)',config.SQLITE_TABLE)
-      c.close()
-      conn.commit()
-      conn.close()
+    conn = sqlite3.connect(self.dbfile)
+    c = conn.cursor()
+    c.execute('CREATE TABLE {tn} IF NOT EXISTS info (url TEXT NOT NULL UNIQUE PRIMARY KEY, \
+    title TEXT, \
+    file TEXT,\
+    size INTEGER,\
+    length INTEGER)',config.SQLITE_TABLE)
+    c.close()
+    conn.commit()
+    conn.close()
 
   def insert_video_item(self,url,title,file='',size = 0,length = 0):
     conn = sqlite3.connect(self.dbfile)
