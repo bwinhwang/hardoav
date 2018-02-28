@@ -27,7 +27,7 @@ class DB:
     conn = sqlite3.connect(self.dbfile)
     c = conn.cursor()
     try:
-      c.execute("SELECT * WHERE url = ?",(url))
+      c.execute("SELECT * FROM ? WHERE url = ? ",(config.SQLITE_TABLE,url))
       data = c.fetchone()
       if data is None:
         c.execute('INSERT INTO ? values(?,?,?,?,?)',
