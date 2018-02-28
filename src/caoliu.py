@@ -124,13 +124,16 @@ class CaoLiu(object):
             for h3 in h3s:
                 a = h3.find("a")
                 try:
-                    href = self.site + a.get("href")
-                    title = unicode(a.string).replace(" ", "").encode('utf-8')
-                    topic_urls.append(dict(url = href.encode('utf-8'),title = title,size = 0, file='',length=0))
-                    # print(u"title: %s\nurl: %s" % (title, href))
-                    scanned_topic += 1
-                    if scanned_topic >= self.topic_num:
-                        break
+                    href = a.get("href")
+                    # skip the top 3 links of general titiles
+                    if href != "read.php?tid=5877" and href != "htm_data/22/1802/1191077.html" and href != "htm_data/22/1802/1191077.html":
+                        href = self.site + a.get("href")
+                        title = unicode(a.string).replace(" ", "").encode('utf-8')
+                        topic_urls.append(dict(url = href.encode('utf-8'),title = title,size = 0, file='',length=0))
+                        # print(u"title: %s\nurl: %s" % (title, href))
+                        scanned_topic += 1
+                        if scanned_topic >= self.topic_num:
+                            break
                 except Exception as _:
                     traceback.print_exc()
             print("scaned topic_num: %d" % scanned_topic)
