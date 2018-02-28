@@ -22,9 +22,10 @@ class DB:
     conn.commit()
     conn.close()
 
-  def insert_video_item(self,url,title,file=''.encode('utf-8'),size = 0,length = 0):
+  def insert_video_item(self,url,title,file='',size = 0,length = 0):
     conn = sqlite3.connect(self.dbfile)
     c = conn.cursor()
+    conn.text_factory = str
     try:
       c.execute('SELECT * FROM video WHERE url = ? ',(url,))
       data = c.fetchone()
