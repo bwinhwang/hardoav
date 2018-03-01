@@ -125,8 +125,8 @@ class CaoLiu(object):
                 a = h3.find("a")
                 try:
                     href = a.get("href")
-                    # skip the top 3 links of general titiles
-                    if href != "read.php?tid=5877" and href != "htm_data/22/1802/1191077.html" and href != "htm_data/22/1802/1191077.html":
+                    # skip the links of general titiles
+                    if href != "read.php?tid=5877" and href != "htm_data/2/1111/30611.html" and href != "htm_data/22/1802/1191077.html":
                         href = self.site + a.get("href")
                         title = unicode(a.string).replace(" ", "").encode('utf-8')
                         topic_urls.append(dict(url = href.encode('utf-8'),title = title,size = 0, file='',length=0))
