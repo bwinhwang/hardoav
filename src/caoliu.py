@@ -58,43 +58,9 @@ def find_download_info(session, url):
         print("Can't handle url", src)
 
     if file_url:
-    	return dict(file=file_url, Referer=src, title=title)
+        return dict(file=file_url, Referer=src, title=title)
     else:
-    	return None
-
-def pptcc(js):
-    import execjs
-    ret = execjs.eval(js)
-    return ret["file"]
-
-FAKE_JQUERY='''
-function $(id) {
-    function attr(src, url) {return url;}
-    var o = {};
-    o.attr = attr;
-    return o;
-}
-
-'''
-
-def up2stream(js):
-    import execjs
-    file_url = None
-    ctx = execjs.compile(FAKE_JQUERY)
-    try:
-        file_url = ctx.eval(js)
-    except execjs.ProgramError as e:
-        # ReferenceError: DUNUfdcXVfY is not defined
-        print(e)
-        e = str(e)
-        flag = e.split()[1]
-        flag = "var %s=true;" % flag
-        ctx = execjs.compile(FAKE_JQUERY + flag)
-        file_url = ctx.eval(js)
-    if not file_url or "36abc039c05dff6d1a82e0c7988c467d" in file_url:
         return None
-    return file_url
-
 
 class CaoLiu(object):
     def __init__(self, site, topic_num, output_dir, db, url=None, type=1):
@@ -108,7 +74,7 @@ class CaoLiu(object):
         self.db = db
 
 
-    def _get_topic_url(self):
+    def get_latest_items(self):
         thread_url = self.site + "thread0806.php?fid=22&search=&type=${type}&page={page}"
         page = 1
         scanned_topic = 0
@@ -142,6 +108,45 @@ class CaoLiu(object):
             page += 1
         return topic_urls
 
+    def check_item_info(self,session,url):
+        global fu
+        r = session.get(url)
+        # print(r.request.headers)
+        r.encoding = "gb2312"
+        soup = bs4.BeautifulSoup(r.text, "lxml")
+        title = unicode(soup.find("title").string).rsplit(']', 1)[0] + ']'
+        div = soup.find("div", class_="tpc_content do_not_catch")
+        a = div.find_all("a")[1]
+        onclick = a["onclick"]
+        onclick = onclick.rsplit("'", 2)
+        src = onclick[-2]
+        print("iframe src: %s" % src)
+        headers = dict(Referer=url)
+        headers["User-Agent"] = AGENT
+        r = session.get(src, headers=headers)
+        content = r.content
+        PATTERN = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-&\--_*+@.]|[!*\(\)]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+        file_urls = re.findall(PATTERN, content)
+        # print(content)
+        # soup = bs4.BeautifulSoup(r.text, "lxml")
+        file_url = None
+        # ret = re.search(r"eval\(.*\)", content)
+        # js = ret.group()
+        # file_url = up2stream(js)
+        # file_url = pptcc(js)
+        # now use regular expression to find file url.
+        try:
+          for fu in file_urls:
+            # fu = fu.rstrip('/')
+            #no_query_fu = fu.split('?', 1)[0]
+            #if no_query_fu.rsplit('.')[-1] in ('mp4', 'mp4/'):
+            #  file_url = fu
+            #  break
+            print fu
+        except Exception as e:
+          print(e)
+          print("Can't handle url", src)
+
     def start_scan(self):
         if self.url:
             # individual url download
@@ -162,8 +167,9 @@ class CaoLiu(object):
                     traceback.print_exc()
         else:
             # scan
-            for item in self._get_topic_url():
-                self.db.insert_video_item(item['url'],item['title'])
+            for item in self.get_latest_items():
+                #self.db.insert_video_item(item['url'],item['title'])
+                self.check_item_info(self.session,item['url'])
 
     def download(self, download_info, filename):
         headers = dict(Referer=download_info["Referer"])
